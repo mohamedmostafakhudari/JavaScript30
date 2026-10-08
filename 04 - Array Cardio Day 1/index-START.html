@@ -36,31 +36,90 @@
       'Billings, Josh', 'Birrell, Augustine', 'Blair, Tony', 'Beecher, Henry', 'Biondo, Frank'
     ];
     
+    function computeYearsLived(person) {
+      const birthYear = person.year;
+      const deathYear = person.passed;
+      return deathYear - birthYear;
+    }
     // Array.prototype.filter()
     // 1. Filter the list of inventors for those who were born in the 1500's
-
+    const inventorsIn1500s = inventors.filter(person => person.year >= 1500 && person.year < 1600)
+    // console.log(inventorsIn1500s);
     // Array.prototype.map()
     // 2. Give us an array of the inventors first and last names
-
+    const inventorsFnameLname = inventors.map(person => ({ firstName: person.first, lastName: person.last }));
+    // console.log(inventorsFnameLname);
     // Array.prototype.sort()
     // 3. Sort the inventors by birthdate, oldest to youngest
-
+    const inventorsSortedByBirthDate = inventors.slice().sort((p1, p2) => p1.year - p2.year);
+    // console.log(inventorsSortedByBirthDate);
     // Array.prototype.reduce()
     // 4. How many years did all the inventors live all together?
-
+    const inventorsTotalYearsLived = inventors.reduce((tot, person) => {
+      const yearsLived = computeYearsLived(person);
+      return tot + yearsLived;
+    }, 0);
+    // console.log(inventorsTotalYearsLived);
     // 5. Sort the inventors by years lived
-
+    const inventorsSortedByYearsLived = inventors.slice().sort((p1, p2) => {
+      const p1Age = computeYearsLived(p1);
+      const p2Age = computeYearsLived(p2);
+      return p2Age - p1Age;
+    });
+    // console.log(inventorsSortedByYearsLived);
     // 6. create a list of Boulevards in Paris that contain 'de' anywhere in the name
     // https://en.wikipedia.org/wiki/Category:Boulevards_in_Paris
 
+    async function fetchWiki() {
+      const url = new URL("https://en.wikipedia.org/w/api.php");
 
+      const params = {
+        action: "query",
+        list: "categorymembers",
+        cmtitle: "Category:Boulevards_in_Paris",
+        cmlimit: "500",
+        format: "json",
+        origin: "*" // Required for client-side CORS requests
+      };
+
+      url.search = new URLSearchParams(params).toString();
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();        
+        return data;
+      } catch (error) {
+        console.error("Error fetching from Wikipedia:", error);
+      }
+    }
+
+    // fetchWiki().then(data => {
+    //   const boulevards = data.query.categorymembers;
+    //   const titles = boulevards.map(item => item.title);
+    //   const filteredTitles = titles.filter(t => t.includes('de'));
+    //   return filteredTitles;
+    // }).then(result => console.log(result));
+    
     // 7. sort Exercise
     // Sort the people alphabetically by last name
-
+    function parseName(str) {
+      const [firstName, lastName] = str.split(", ").map(x => x.toLowerCase());
+      return { firstName, lastName };
+    }
+    const peopleSortedByLastName = people.slice().sort((p1, p2) => {
+      const p1LName = parseName(p1).lastName;
+      const p2LName = parseName(p2).lastName;
+      return p1LName.localeCompare(p2LName);
+    });
+    // console.log(peopleSortedByLastName);
     // 8. Reduce Exercise
     // Sum up the instances of each of these
     const data = ['car', 'car', 'truck', 'truck', 'bike', 'walk', 'car', 'van', 'bike', 'walk', 'car', 'van', 'car', 'truck' ];
-
+    const frequencyHashMap = data.reduce((map, item) => {
+      map[item] = (map[item] ?? 0) + 1;
+      return map;
+    }, {});
+    // console.log(frequencyHashMap);
   </script>
 </body>
 </html>
